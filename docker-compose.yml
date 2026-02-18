@@ -1,0 +1,15 @@
+services:
+  database:
+    container_name: "readings-db"
+    image: postgres
+    volumes:
+      - readings-db:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: "readings"
+      POSTGRES_PASSWORD: "readings"
+      POSTGRES_DB: "readings"
+    ports:
+      - "5434:5432"
+
+volumes:
+  readings-db:
