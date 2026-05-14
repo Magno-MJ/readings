@@ -12,7 +12,7 @@ from src.infra.setup.containers.book import create_book_use_case
 
 
 class CreateBookAPIView(APIView):
-    def post(self, request):
+    def post(self, request) -> Response:
 
         serializer = CreateBookSerializer(data=request.data)
 
