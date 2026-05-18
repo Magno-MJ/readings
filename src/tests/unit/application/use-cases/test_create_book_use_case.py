@@ -1,7 +1,5 @@
 import pytest
 
-from unittest.mock import Mock
-
 from src.application.use_cases.create_book_use_case import (
     CreateBookDto,
     CreateBookUseCase,
@@ -11,34 +9,41 @@ from src.application.use_cases.create_book_use_case import (
 from src.domain.entities.book import Book
 
 
+@pytest.fixture
+def book_repository(mocker):
+
+    return mocker.Mock()
+
+
 class TestCreateBookUseCase:
 
-    def test_should_create_book_successfully(self):
+    def test_should_create_book_successfully(
+        self,
+        book_repository
+    ):
 
-        repository = Mock()
-
-        repository.find_by_isbn.return_value = None
+        book_repository.find_by_isbn.return_value = None
 
         use_case = CreateBookUseCase(
-            book_repository=repository
+            book_repository=book_repository
         )
 
         dto = CreateBookDto(
-            name="DDD",
+            name="Fake",
             quantity_of_pages=200,
             isbn="123456"
         )
 
         use_case.execute(dto)
 
-        repository.find_by_isbn.assert_called_once_with(
+        book_repository.find_by_isbn.assert_called_once_with(
             isbn=dto.isbn
         )
 
-        repository.save.assert_called_once()
+        book_repository.save.assert_called_once()
 
         saved_book = (
-            repository.save.call_args.args[0]
+            book_repository.save.call_args.args[0]
         )
 
         assert saved_book.name == dto.name
@@ -50,22 +55,23 @@ class TestCreateBookUseCase:
 
         assert saved_book.isbn == dto.isbn
 
-    def test_should_raise_exception_when_book_already_exists(self):
+    def test_should_raise_exception_when_book_already_exists(
+        self,
+        book_repository
+    ):
 
-        repository = Mock()
-
-        repository.find_by_isbn.return_value = Book(
+        book_repository.find_by_isbn.return_value = Book(
             name="Existing Book",
             quantity_of_pages=100,
             isbn="123456"
         )
 
         use_case = CreateBookUseCase(
-            book_repository=repository
+            book_repository=book_repository
         )
 
         dto = CreateBookDto(
-            name="DDD",
+            name="Fake",
             quantity_of_pages=200,
             isbn="123456"
         )
@@ -76,8 +82,8 @@ class TestCreateBookUseCase:
 
             use_case.execute(dto)
 
-        repository.find_by_isbn.assert_called_once_with(
+        book_repository.find_by_isbn.assert_called_once_with(
             isbn=dto.isbn
         )
 
-        repository.save.assert_not_called()
+        book_repository.save.assert_not_called()
